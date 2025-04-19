@@ -1,0 +1,295 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&family=JetBrains+Mono&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base styles */
+@layer base {
+  body {
+    @apply font-sans text-neutral-900 bg-neutral-50;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-semibold tracking-tight;
+  }
+  h1 {
+    @apply text-3xl md:text-4xl;
+  }
+  h2 {
+    @apply text-2xl md:text-3xl;
+  }
+  h3 {
+    @apply text-xl md:text-2xl;
+  }
+  a {
+    @apply text-primary-600 hover:text-primary-800 transition-colors;
+  }
+  code {
+    @apply font-mono text-sm bg-neutral-100 px-1 py-0.5 rounded;
+  }
+}
+
+/* Componentes reutilizables */
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+  
+  .btn-primary {
+    @apply btn bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500;
+  }
+  
+  .btn-secondary {
+    @apply btn bg-secondary-600 text-white hover:bg-secondary-700 focus:ring-secondary-500;
+  }
+  
+  .btn-accent {
+    @apply btn bg-accent-500 text-white hover:bg-accent-600 focus:ring-accent-400;
+  }
+  
+  .btn-outline {
+    @apply btn border-2 border-primary-600 text-primary-600 hover:bg-primary-50;
+  }
+  
+  .btn-ghost {
+    @apply btn text-neutral-700 hover:bg-neutral-100;
+  }
+  
+  .card {
+    @apply bg-white rounded-xl shadow-card p-6;
+  }
+  
+  .input {
+    @apply w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+  }
+
+  .badge {
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium;
+  }
+  
+  .badge-primary {
+    @apply badge bg-primary-100 text-primary-800;
+  }
+  
+  .badge-secondary {
+    @apply badge bg-secondary-100 text-secondary-800;
+  }
+  
+  .badge-accent {
+    @apply badge bg-accent-100 text-accent-800;
+  }
+  
+  .badge-neutral {
+    @apply badge bg-neutral-100 text-neutral-800;
+  }
+}
+
+/* Utilidades personalizadas */
+@layer utilities {
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .transition-height {
+    transition-property: height;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari, Opera */
+  }
+}
+
+/* Animaciones específicas */
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Estilos específicos de la aplicación */
+.learning-path {
+  position: relative;
+}
+
+.learning-path::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 20px;
+  width: 4px;
+  background-color: theme('colors.primary.200');
+  border-radius: 4px;
+}
+
+.module-card {
+  position: relative;
+  margin-left: 44px;
+}
+
+.module-card::before {
+  content: '';
+  position: absolute;
+  left: -24px;
+  top: 24px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: theme('colors.primary.400');
+  border: 3px solid theme('colors.primary.100');
+  z-index: 1;
+}
+
+.module-card.completed::before {
+  background-color: theme('colors.secondary.500');
+  border: 3px solid theme('colors.secondary.100');
+}
+
+.module-card.locked::before {
+  background-color: theme('colors.neutral.400');
+  border: 3px solid theme('colors.neutral.100');
+}
+
+/* Estilos para chatbot */
+.chatbot-container {
+  @apply rounded-xl bg-white shadow-soft border border-neutral-200 overflow-hidden;
+  display: flex;
+  flex-direction: column;
+  height: 400px;
+  max-height: 60vh;
+}
+
+.chatbot-header {
+  @apply bg-primary-600 text-white p-4;
+}
+
+.chatbot-messages {
+  @apply p-4 space-y-4 overflow-y-auto flex-grow;
+}
+
+.message {
+  @apply px-4 py-3 rounded-lg max-w-[85%];
+}
+
+.message.user {
+  @apply bg-primary-100 text-primary-900 ml-auto;
+  border-bottom-right-radius: 0;
+}
+
+.message.assistant {
+  @apply bg-neutral-100 text-neutral-800;
+  border-bottom-left-radius: 0;
+}
+
+.chatbot-input {
+  @apply p-3 border-t border-neutral-200 flex items-end;
+}
+
+.chatbot-input textarea {
+  @apply input resize-none mr-2 flex-grow;
+}
+
+/* Estilos para preguntas y respuestas */
+.question-container {
+  @apply card mb-6;
+}
+
+.question-header {
+  @apply flex justify-between items-center mb-4;
+}
+
+.question-metadata {
+  @apply flex flex-col space-y-1;
+}
+
+.question-content {
+  @apply mb-6;
+}
+
+.question-text {
+  @apply prose max-w-none mb-6;
+}
+
+.question-alternatives {
+  @apply space-y-3;
+}
+
+.alternative {
+  @apply flex items-start p-3 border border-neutral-200 rounded-lg cursor-pointer transition-colors;
+}
+
+.alternative:hover {
+  @apply bg-neutral-50;
+}
+
+.alternative.selected {
+  @apply border-primary-500 bg-primary-50;
+}
+
+.alternative.correct {
+  @apply border-secondary-500 bg-secondary-50;
+}
+
+.alternative.incorrect {
+  @apply border-accent-500 bg-accent-50;
+}
+
+.identifier {
+  @apply font-semibold text-neutral-700 mr-3;
+}
+
+.alternative-content {
+  @apply flex-grow;
+}
+
+.question-actions {
+  @apply flex justify-between mt-4;
+}
+
+.primary-actions {
+  @apply flex space-x-2;
+}
+
+.secondary-actions {
+  @apply flex space-x-2;
+}
+
+.hints-container {
+  @apply bg-primary-50 p-4 rounded-lg mt-4 border border-primary-100;
+}
+
+.feedback-container {
+  @apply mt-4 p-4 rounded-lg;
+}
+
+.correct-feedback {
+  @apply text-secondary-700;
+}
+
+.incorrect-feedback {
+  @apply text-accent-700;
+}
+
+.correct-answer {
+  @apply mt-2 text-neutral-800;
+}
+
+/* Estilos para dashboard */
+.dashboard-container {
+  @apply space-y-6 p-

@@ -1,0 +1,29 @@
+{
+    "name": "tutoria",
+    "version": "1.0.0",
+    "description": "Plataforma educativa TutorIA - Sistema completo",
+    "scripts": {
+      "start": "concurrently \"npm run start:backend\" \"npm run start:ai\" \"npm run start:frontend\"",
+      "dev": "concurrently \"npm run dev:backend\" \"npm run dev:ai\" \"npm run dev:frontend\"",
+      "start:backend": "cd backend && npm start",
+      "start:ai": "cd ai-service && npm start",
+      "start:frontend": "cd frontend && npm start",
+      "dev:backend": "cd backend && npm run dev",
+      "dev:ai": "cd ai-service && npm run dev",
+      "dev:frontend": "cd frontend && npm start",
+      "install:all": "npm install && npm run install:backend && npm run install:ai && npm run install:frontend",
+      "install:backend": "cd backend && npm install",
+      "install:ai": "cd ai-service && npm install",
+      "install:frontend": "cd frontend && npm install",
+      "test": "concurrently \"npm run test:backend\" \"npm run test:ai\" \"npm run test:frontend\"",
+      "test:backend": "cd backend && npm test",
+      "test:ai": "cd ai-service && npm test",
+      "test:frontend": "cd frontend && npm test"
+    },
+    "dependencies": {
+      "concurrently": "^8.0.1"
+    },
+    "engines": {
+      "node": ">=16.0.0"
+    }
+  }

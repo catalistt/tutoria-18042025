@@ -1,0 +1,129 @@
+name: TutorIA CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    
+    # Frontend tests
+    - name: Frontend - Install dependencies
+      run: cd frontend && npm ci
+    
+    - name: Frontend - Run linter
+      run: cd frontend && npm run lint
+    
+    - name: Frontend - Run tests
+      run: cd frontend && npm test
+    
+    # Backend tests
+    - name: Backend - Install dependencies
+      run: cd backend && npm ci
+    
+    - name: Backend - Run linter
+      run: cd backend && npm run lint
+    
+    - name: Backend - Run tests
+      run: cd backend && npm test
+    
+    # AI Service tests
+    - name: AI Service - Install dependencies
+      run: cd ai-service && npm ci
+    
+    - name: AI Service - Run linter
+      run: cd ai-service && npm run lint
+    
+    - name: AI Service - Run tests
+      run: cd ai-service && npm test
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    # Build Frontend
+    - name: Build Frontend Docker image
+      run: docker build -t tutoria-frontend:latest ./frontend
+    
+    # Build Backend
+    - name: Build Backend Docker image
+      run: docker build -t tutoria-backend:latest ./backend
+    
+    # Build AI Service
+    - name: Build AI Service Docker image
+      run: docker build -t tutoria-ai-service:latest ./ai-service
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    # Autenticación con AWS
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+    
+    # Login al ECR
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+    
+    # Variables de ambiente
+    - name: Set environment variables
+      run: |
+        echo "ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}" >> $GITHUB_ENV
+        echo "ECR_REPOSITORY_FRONTEND=tutoria-frontend" >> $GITHUB_ENV
+        echo "ECR_REPOSITORY_BACKEND=tutoria-backend" >> $GITHUB_ENV
+        echo "ECR_REPOSITORY_AI=tutoria-ai-service" >> $GITHUB_ENV
+        echo "IMAGE_TAG=$(echo $GITHUB_SHA | head -c7)" >> $GITHUB_ENV
+    
+    # Build y push de las imágenes a ECR
+    - name: Build, tag, and push images to Amazon ECR
+      run: |
+        # Frontend
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:latest ./frontend
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:$IMAGE_TAG
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:latest
+        
+        # Backend
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:latest ./backend
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:latest
+        
+        # AI Service
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_AI:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY_AI:latest ./ai-service
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY_AI:$IMAGE_TAG
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY_AI:latest
+    
+    # Actualizar despliegue en ECS
+    - name: Update ECS services
+      run: |
+        aws ecs update-service --cluster tutoria-cluster --service tutoria-frontend-service --force-new-deployment
+        aws ecs update-service --cluster tutoria-cluster --service tutoria-backend-service --force-new-deployment
+        aws ecs update-service --cluster tutoria-cluster --service tutoria-ai-service --force-new-deployment
